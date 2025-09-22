@@ -1,10 +1,10 @@
 from tkinter import *
+import csv
 import keyboard
 import socket
 import os
 import xml.etree.ElementTree as et
-
-
+import sys
 
 #СТАРТОВЫЕ ДАННЫЕ
 
@@ -15,16 +15,37 @@ po = ["$HOME", "$USER", "~", "ERROR"]
 
 # ЛОГИКА
 
+CLI_VFS = None
+CLI_STARTUP = None
+CONFIG_PATH = "config.xml"
 
+CSV_LIST = []
+
+def parse_argv():
+    global CLI_VFS, CLI_STARTUP, CONFIG_PATH
+    args = sys.argv[1:]
+    i = 0
+    while i < len(args):
+        t = args[i]
+        if t == "--vfs" and i+1 < len(args):
+            CLI_VFS = args[i+1]; i += 2
+        elif t == "--startup" and i+1 < len(args):
+            CLI_STARTUP = args[i+1]; i += 2
+        elif t == "--config" and i+1 < len(args):
+            CONFIG_PATH = args[i+1]; i += 2
+        else:
+            i += 1
+
+parse_argv()
 
 def xml(x):
-    global com
+    global com, CSV_LIST
     tree = None
     vfs = None
     startup = None
     sh = 0
     try:
-        tree = et.parse("config.xml")
+        tree = et.parse(CONFIG_PATH)
     except FileNotFoundError:
         output.insert(END, "ERROR")
         return
@@ -34,6 +55,12 @@ def xml(x):
     root = tree.getroot()
     vfs = root.findtext("vfs")
     startup = root.findtext("startup")
+
+    if CLI_VFS is not None:
+        vfs = CLI_VFS
+    if CLI_STARTUP is not None:
+        startup = CLI_STARTUP
+
     if vfs is None or startup is None:
         output.insert(END, "ERROR: vfs or startup not found")
         return
@@ -55,6 +82,22 @@ def xml(x):
                     if x[sh] != vfs:
                         x[sh] = vfs
                     output.insert(END, x[sh] + com + "\n")
+                    try:
+                        with open(f"{x[sh]}\\file_sys.csv", "r") as file:
+                            reader = csv.reader(file, delimiter = ";")
+                            for row in reader:
+                                if row[0] not in ("type", "dir", "file"):
+                                    output.insert(END, f"ERROR: invalid type '{row[0]}'\n")
+                                    return
+                                CSV_LIST.append(row)
+                                output.insert(END, ",".join(row))
+                                output.insert(END, "\n")
+                    except FileNotFoundError:
+                        output.insert(END, "ERROR, File not found")
+                        return
+                    print(CSV_LIST) # ЭТО ЧТОБЫ ПОСМОТРЕТЬ, РОБИТ ИЛИ НЕ РОБИТ
+
+
                 case "---startup":
                     if x[sh] != startup:
                         x[sh] = startup
@@ -124,8 +167,6 @@ def work(command):
         output.insert(END, "ERROR!\n")
         return
 
-
-
 # ОКНО
 root = Tk()
 root.title(f" Эмулятор - {UserName}@{HostName}")
@@ -140,6 +181,7 @@ txt.place(relx = 0.5, y =155, anchor ="center")
 output = Text(root, height=10, width=67)
 output.place(relx = 0.5, y=360, anchor = "center")
 output.insert(END,f"Hello, {UserName}" "\n")
+output.insert(END, f"ARGV: {' '.join(sys.argv[1:])}\n")
 
 work("data ---startup")
 keyboard.add_hotkey("enter", press)
