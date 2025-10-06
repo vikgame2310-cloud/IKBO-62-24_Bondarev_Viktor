@@ -1,2 +1,3 @@
+# djsnds
 cd $HOME # i_here
-data ---vfs
+--vfs

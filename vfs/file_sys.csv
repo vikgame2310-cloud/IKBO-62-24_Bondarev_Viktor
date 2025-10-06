@@ -1,3 +1,4 @@
 type;path;content_b64
 dir;/;
-file;/hello.txt;SGVsbG8gd29ybGQh
+dir;/Dmitry;
+file;/Dmitry/readme.txt;0JTQvtC60L7RgNC+LCDQkNCy0YLQvtGA

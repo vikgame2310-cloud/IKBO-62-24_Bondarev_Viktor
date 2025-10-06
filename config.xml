@@ -1,4 +1,5 @@
-<config>
+<config_ful>
+    <config>C:\Users\Виктор\PycharmProjects\PythonProject2\config.xml</config>
     <vfs>C:\Users\Виктор\PycharmProjects\PythonProject2\vfs</vfs>
     <startup>C:\Users\Виктор\PycharmProjects\PythonProject2\start.txt</startup>
-</config>
+</config_ful>

@@ -6,14 +6,16 @@ import os
 import xml.etree.ElementTree as et
 import sys
 
+
 #СТАРТОВЫЕ ДАННЫЕ
 
 UserName = os.environ["USERNAME"]
 HostName = socket.gethostname()
 
 po = ["$HOME", "$USER", "~", "ERROR"]
-
+com = ""
 # ЛОГИКА
+args = None
 
 CLI_VFS = None
 CLI_STARTUP = None
@@ -21,25 +23,10 @@ CONFIG_PATH = "config.xml"
 
 CSV_LIST = []
 
-def parse_argv():
-    global CLI_VFS, CLI_STARTUP, CONFIG_PATH
-    args = sys.argv[1:]
-    i = 0
-    while i < len(args):
-        t = args[i]
-        if t == "--vfs" and i+1 < len(args):
-            CLI_VFS = args[i+1]; i += 2
-        elif t == "--startup" and i+1 < len(args):
-            CLI_STARTUP = args[i+1]; i += 2
-        elif t == "--config" and i+1 < len(args):
-            CONFIG_PATH = args[i+1]; i += 2
-        else:
-            i += 1
 
-parse_argv()
 
 def xml(x):
-    global com, CSV_LIST
+    global com, CLI_VFS, CLI_STARTUP
     tree = None
     vfs = None
     startup = None
@@ -47,38 +34,39 @@ def xml(x):
     try:
         tree = et.parse(CONFIG_PATH)
     except FileNotFoundError:
-        output.insert(END, "ERROR")
+        output.insert(END, "ERROR to FileNotFoundError\n")
         return
     except et.ParseError:
-        output.insert(END, "ERROR\n")
+        output.insert(END, "ERROR to ParseError \n")
         return
     root = tree.getroot()
+    config = root.findtext("config")
     vfs = root.findtext("vfs")
     startup = root.findtext("startup")
 
-    if CLI_VFS is not None:
+    if CLI_VFS is not None: #подозрение, что эта хрень не робит
         vfs = CLI_VFS
     if CLI_STARTUP is not None:
         startup = CLI_STARTUP
-
     if vfs is None or startup is None:
         output.insert(END, "ERROR: vfs or startup not found")
         return
+    output.insert(END, " ".join(x) + "\n")
     for alement in x:
-        if alement == "---config.xml" or alement == "---vfs" or alement == "---startup":
+        if alement == "--config.xml" or alement == "--vfs" or alement == "--startup":
             sh+=1
             if sh < len(x):
-                if x[sh] not in ("---config.xml","---vfs","---startup", "data") :
+                if x[sh] not in ("--config.xml","--vfs","--startup", "data") :
                     print(x[sh])
                     sh += 1
             sh -= 1
             match alement:
-                case "---config.xml":
-                    if tree == None or vfs == None or startup == None:
-                        output.insert(END, "Error" + "\n")
-                    else:
-                        output.insert(END, vfs + "\n" + startup + com + "\n")
-                case "---vfs":
+                case "--config.xml":
+                    if x[sh] != config:
+                        x[sh] = config
+
+                        output.insert(END, config + "\n")
+                case "--vfs":
                     if x[sh] != vfs:
                         x[sh] = vfs
                     output.insert(END, x[sh] + com + "\n")
@@ -95,10 +83,8 @@ def xml(x):
                     except FileNotFoundError:
                         output.insert(END, "ERROR, File not found")
                         return
-                    print(CSV_LIST) # ЭТО ЧТОБЫ ПОСМОТРЕТЬ, РОБИТ ИЛИ НЕ РОБИТ
-
-
-                case "---startup":
+                    for
+                case "--startup": #можно сделать условие с аргв, чтобы не писался стартап если команда есть, а он не вписан
                     if x[sh] != startup:
                         x[sh] = startup
                     c = open(x[sh])
@@ -106,6 +92,33 @@ def xml(x):
                         st_com = f.strip()
                         output.insert(END, st_com + "\n")
                         work(st_com)
+
+def parse_argv():
+    global CLI_VFS, CLI_STARTUP, CONFIG_PATH, args
+    args = sys.argv[1:]
+    if not args:
+        return
+
+    i = 0
+    while i < len(args):
+        if args[i] in ("--config.xml","--vfs","--startup"):
+            if i + 1 >= len(args) or args[i+1] in ("--config.xml","--vfs","--startup"):
+                print(f"ERROR СИНТАКСИС: {args[i]} требует значение")
+                i += 1
+                continue
+            if args[i] == "--config.xml":
+                CONFIG_PATH = args[i+1]
+            elif args[i] == "--vfs":
+                CLI_VFS = args[i+1]
+            elif args[i] == "--startup":
+                CLI_STARTUP = args[i+1]
+            i += 2
+        else:
+            print(f"ERROR СИНТАКСИС: неизвестный аргумент {args[i]}")
+            i += 1
+
+    xml(args)
+
 
 
 def press():
@@ -152,7 +165,8 @@ def work(command):
             com = " ".join(c)
             con = con[:idx]
             break
-
+    if not con:
+        return
 
     if con[0] == "exit" and len(con) == 1:
         root.destroy()
@@ -160,8 +174,9 @@ def work(command):
         pap(con)
     elif con[0] == "cd":
         go(con)
-    elif con[0] == "data":
-        xml(con[1:])
+    elif  con[0] in ("--config.xml","--vfs","--startup"):
+        xml(con)
+
 
     else:
         output.insert(END, "ERROR!\n")
@@ -181,9 +196,13 @@ txt.place(relx = 0.5, y =155, anchor ="center")
 output = Text(root, height=10, width=67)
 output.place(relx = 0.5, y=360, anchor = "center")
 output.insert(END,f"Hello, {UserName}" "\n")
-output.insert(END, f"ARGV: {' '.join(sys.argv[1:])}\n")
 
-work("data ---startup")
+parse_argv()
+from_terminal = sys.stdin.isatty() and sys.stdout.isatty()
+if not from_terminal and not sys.argv[1:]:
+    output.insert(END, f"ARGV: {' '.join(sys.argv[1:])}\n")
+    work("--startup")
+
 keyboard.add_hotkey("enter", press)
 
 wo = Button(root, text="Enter", command=lambda: work(txt.get()))
