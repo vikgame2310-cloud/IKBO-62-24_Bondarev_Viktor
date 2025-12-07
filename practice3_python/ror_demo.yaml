@@ -1,0 +1,35 @@
+program:
+  # R0 = адрес ячейки, где лежит сдвиг
+  - op: LOAD_CONST
+    dst: 0
+    value: 300
+
+  # R1 = значение сдвига (например, 3)
+  - op: LOAD_CONST
+    dst: 1
+    value: 3
+
+  # mem[300] = 3
+  - op: STORE
+    src: 1
+    addr_reg: 0
+
+  # R2 = какое-то число, которое будем крутить
+  - op: LOAD_CONST
+    dst: 2
+    value: 123456
+
+  # ROR R2, mem[ R0 ]  => крутим R2 на 3 бита вправо
+  - op: ROR
+    dst: 2
+    mem_reg: 0
+
+  # R3 = адрес, куда положим результат
+  - op: LOAD_CONST
+    dst: 3
+    value: 400
+
+  # mem[400] = R2 (результат сдвига)
+  - op: STORE
+    src: 2
+    addr_reg: 3

@@ -1,0 +1,16 @@
+program:
+  - op: LOAD_CONST
+    dst: 5
+    value: 748
+
+  - op: LOAD
+    dst: 6
+    addr_reg: 0
+
+  - op: STORE
+    src: 1
+    addr_reg: 7
+
+  - op: ROR
+    dst: 7
+    mem_reg: 5

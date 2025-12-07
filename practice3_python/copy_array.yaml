@@ -1,0 +1,92 @@
+program:
+  # --- Инициализируем адреса источника и приёмника ---
+
+  # R0 = 100  (адрес первого элемента исходного массива)
+  - op: LOAD_CONST
+    dst: 0
+    value: 100
+
+  # R1 = 200  (адрес первого элемента целевого массива)
+  - op: LOAD_CONST
+    dst: 1
+    value: 200
+
+  # R2 = 101  (второй элемент исходного массива)
+  - op: LOAD_CONST
+    dst: 2
+    value: 101
+
+  # R3 = 201  (второй элемент целевого массива)
+  - op: LOAD_CONST
+    dst: 3
+    value: 201
+
+  # R4 = 102  (третий элемент исходного массива)
+  - op: LOAD_CONST
+    dst: 4
+    value: 102
+
+  # R5 = 202  (третий элемент целевого массива)
+  - op: LOAD_CONST
+    dst: 5
+    value: 202
+
+
+  # --- Заполняем исходный "массив" по адресам 100, 101, 102 ---
+
+  # mem[100] = 10
+  - op: LOAD_CONST   # R6 = 10
+    dst: 6
+    value: 10
+
+  - op: STORE        # mem[ R0 ] = R6  => mem[100] = 10
+    src: 6
+    addr_reg: 0
+
+  # mem[101] = 20
+  - op: LOAD_CONST   # R6 = 20
+    dst: 6
+    value: 20
+
+  - op: STORE        # mem[ R2 ] = R6  => mem[101] = 20
+    src: 6
+    addr_reg: 2
+
+  # mem[102] = 30
+  - op: LOAD_CONST   # R6 = 30
+    dst: 6
+    value: 30
+
+  - op: STORE        # mem[ R4 ] = R6  => mem[102] = 30
+    src: 6
+    addr_reg: 4
+
+
+  # --- Копирование массива: 100..102 -> 200..202 ---
+
+  # копируем mem[100] -> mem[200]
+  - op: LOAD         # R6 = mem[ R0 ] = mem[100]
+    dst: 6
+    addr_reg: 0
+
+  - op: STORE        # mem[ R1 ] = R6  => mem[200] = 10
+    src: 6
+    addr_reg: 1
+
+  # копируем mem[101] -> mem[201]
+  - op: LOAD         # R6 = mem[ R2 ] = mem[101]
+    dst: 6
+    addr_reg: 2
+
+  - op: STORE        # mem[ R3 ] = R6  => mem[201] = 20
+    src: 6
+    addr_reg: 3
+
+  # копируем mem[102] -> mem[202]
+  - op: LOAD         # R6 = mem[ R4 ] = mem[102]
+    dst: 6
+    addr_reg: 4
+
+  - op: STORE        # mem[ R5 ] = R6  => mem[202] = 30
+    src: 6
+    addr_reg: 5
