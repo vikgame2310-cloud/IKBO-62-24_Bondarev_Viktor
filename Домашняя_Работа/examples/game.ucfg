@@ -1,11 +1,11 @@
-global hp-base = 100
-global mana-base = 50
+global hpBase = 100
+global manaBase = 50
 
 begin
     player := begin
         stats := begin
-            hp := !(hp-base);
-            mana := !(mana-base);
+            hp := !(hpBase);
+            mana := !(manaBase);
             agility := 12;
         end;
         inventory := { "sword". "shield". "potion" };
