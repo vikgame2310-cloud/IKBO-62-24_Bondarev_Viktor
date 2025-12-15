@@ -1,10 +1,10 @@
-global tax_rate = 0.13
+global tax-rate = 0.13
 
 begin
     salary := begin
         employee := "John Doe";
         gross := 100000;
-        tax := !(tax_rate);
+        tax := !(tax-rate);
         months := {1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12};
         bonus := 15000;
         correction := -2000;  || отрицательная корректировка
