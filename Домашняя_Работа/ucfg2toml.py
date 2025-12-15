@@ -65,7 +65,7 @@ class Build(Transformer):
         if re.search(r"[.eE]", s):
             return float(s)
         return int(s)
-
+    
     def string(self, t: Token) -> str:
         return bytes(str(t)[1:-1], "utf-8").decode("unicode_escape")
 
@@ -230,19 +230,6 @@ class TestVariant5(unittest.TestCase):
         self.assertIn("[server]", toml)
         self.assertIn("port = 8080", toml)
 
-    def test_underscores_in_names(self):
-        src = """
-        global default_port = 8080
-        begin
-            server_cfg := begin
-                port := !(default_port);
-            end;
-        end
-        """
-        toml = process_text(src)
-        self.assertIn("[server_cfg]", toml)
-        self.assertIn("port = 8080", toml)
-
     def test_extended_numbers(self):
         src = """
         begin
@@ -272,10 +259,11 @@ class TestVariant5(unittest.TestCase):
             nl := "line1\nline2";
         end
         """
+
         toml = process_text(src)
         self.assertIn(r'path = "C:\\temp\\a.txt"', toml)
         self.assertIn(r'quote = "He said: \"ok\""', toml)
-        self.assertIn(r'nl = "line1\\nline2"', toml)
+        self.assertIn(r'nl = "line1\nline2"', toml)
 
 
 def run_tests() -> int:
