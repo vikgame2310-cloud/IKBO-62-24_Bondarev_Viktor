@@ -11,7 +11,7 @@ from lark.exceptions import UnexpectedInput
 class ParseError(Exception):
     pass
 
-NUMBER_RE = r"-?(?:\d+|\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?"
+NUMBER_RE = r"-?(?:\d+\.\d+|\.\d+|\d+\.(?:[eE][+-]?\d+)?(?=\s*;)|\d+)(?:[eE][+-]?\d+)?"
 
 
 GRAMMAR = rf"""
