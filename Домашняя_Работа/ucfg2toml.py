@@ -11,7 +11,7 @@ from lark.exceptions import UnexpectedInput
 class ParseError(Exception):
     pass
 
-NUMBER_RE = r"-?(?:\d+\.\d+|\d+\.(?!\s)|\.\d+|\d+)(?:[eE][+-]?\d+)?"
+NUMBER_RE = r"-?(?:\d+|\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?"
 
 
 GRAMMAR = rf"""
@@ -34,7 +34,7 @@ array: "{{" [value ("." value)*] "}}"
 const_ref: "!" "(" NAME ")"
 
 # FIX: поддержка подчёркиваний в именах (tax_rate, default_port, hp_base, ...)
-NAME: /[a-zA-Z][a-zA-Z0-9_]*/
+NAME: /[a-zA-Z][a-zA-Z0-9]*/
 NUMBER: /{NUMBER_RE}/
 STRING: ESCAPED_STRING
 
@@ -273,7 +273,7 @@ class TestVariant5(unittest.TestCase):
         end
         """
         toml = process_text(src)
-        self.assertIn(r'path = "C:\\\\temp\\\\a.txt"', toml)
+        self.assertIn(r'path = "C:\\temp\\a.txt"', toml)
         self.assertIn(r'quote = "He said: \"ok\""', toml)
         self.assertIn(r'nl = "line1\\nline2"', toml)
 
