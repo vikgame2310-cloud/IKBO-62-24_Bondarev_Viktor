@@ -1,10 +1,10 @@
-global default-port = 8080
-global max-conn = 200
+global defaultPort = 8080
+global maxConn = 200
 
 begin
     server := begin
-        port := !(default-port);
+        port := !(defaultPort);
         host := "localhost";
-        connections := !(max-conn);
+        connections := !(maxConn);
     end;
 end
