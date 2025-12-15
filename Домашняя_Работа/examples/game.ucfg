@@ -8,6 +8,6 @@ begin
             mana := !(mana_base);
             agility := 12;
         end;
-        inventory := { "sword", "shield", "potion" };
+        inventory := { "sword". "shield". "potion" };
     end;
 end
