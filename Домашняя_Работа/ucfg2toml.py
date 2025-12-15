@@ -28,7 +28,7 @@ pair: NAME ":=" value ";"
       | dict
       | const_ref
 
-# Массивы по варианту: { значение. значение. значение. ... }
+
 array: "{{" [value ("." value)*] "}}"
 
 const_ref: "!" "(" NAME ")"
